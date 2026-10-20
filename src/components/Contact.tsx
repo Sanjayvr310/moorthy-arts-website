@@ -72,8 +72,8 @@ export default function Contact() {
     {
       icon: Mail,
       title: 'Email',
-      content: 'moorthyooh@gmail.com',
-      href: 'mailto:moorthyooh@gmail.com',
+      content: 'Moorthyaartssokrates@gmail.com',
+      href: 'mailto:Moorthyaartssokrates@gmail.com',
       color: 'from-blue-500 to-cyan-500',
     },
     {

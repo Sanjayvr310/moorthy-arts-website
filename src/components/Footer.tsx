@@ -38,7 +38,7 @@ export default function Footer() {
                 className="w-10 h-10 bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 rounded-xl flex items-center justify-center transition-all">
                 <Phone className="w-4 h-4 text-gray-400" />
               </a>
-              <a href="mailto:moorthyooh@gmail.com" 
+              <a href="mailto:Moorthyaartssokrates@gmail.com" 
                 className="w-10 h-10 bg-white/5 hover:bg-blue-500/20 border border-white/10 hover:border-blue-500/30 rounded-xl flex items-center justify-center transition-all">
                 <Mail className="w-4 h-4 text-gray-400" />
               </a>
@@ -101,13 +101,13 @@ export default function Footer() {
                   <p className="text-sm">+91 98430 55281</p>
                 </div>
               </a>
-              <a href="mailto:moorthyooh@gmail.com" className="flex items-center gap-3 text-gray-400 hover:text-red-400 transition-colors group">
+              <a href="mailto:Moorthyaartssokrates@gmail.com" className="flex items-center gap-3 text-gray-400 hover:text-red-400 transition-colors group">
                 <div className="w-9 h-9 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center group-hover:border-red-500/30 transition-colors">
                   <Mail className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Email</p>
-                  <p className="text-sm">moorthyooh@gmail.com</p>
+                  <p className="text-sm">Moorthyaartssokrates@gmail.com</p>
                 </div>
               </a>
               <div className="flex items-center gap-3 text-gray-400">

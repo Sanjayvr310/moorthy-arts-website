@@ -81,7 +81,7 @@ export default function Hero() {
           {[
             { value: '3', label: 'Cities', delay: '0.5s' },
             { value: '15+', label: 'Sites', delay: '0.6s' },
-            { value: '10+', label: 'Years', delay: '0.7s' },
+            { value: '50+', label: 'Years', delay: '0.7s' },
           ].map((stat, i) => (
             <div key={i} className="text-center glass rounded-2xl p-4 sm:p-6 hover-lift animate-count-up" style={{ animationDelay: stat.delay }}>
               <div className="text-3xl sm:text-5xl font-black text-white animate-text-glow">{stat.value}</div>

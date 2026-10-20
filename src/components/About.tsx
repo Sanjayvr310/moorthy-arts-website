@@ -61,8 +61,8 @@ export default function About() {
     },
     {
       icon: Award,
-      title: '10+ Years Experience',
-      description: 'A decade of expertise in outdoor advertising, trusted by hundreds of businesses across Tamil Nadu.',
+      title: '50+ Years Experience',
+      description: 'Over five decades of expertise in outdoor advertising, trusted by hundreds of businesses across Tamil Nadu.',
       color: 'from-pink-500 to-rose-500',
     },
   ];
@@ -86,7 +86,7 @@ export default function About() {
             <span className="gradient-text">Moorthy Arts</span>?
           </h2>
           <p className="text-lg text-gray-500 max-w-3xl mx-auto leading-relaxed">
-            Moorthy Arts has been a trusted name in outdoor advertising across Tamil Nadu for over a decade. 
+            Moorthy Arts has been a trusted name in outdoor advertising across Tamil Nadu for over 50 years. 
             We specialize in billboard and hoarding advertising, helping businesses of all sizes amplify their 
             brand presence through strategically placed outdoor media.
           </p>
@@ -130,7 +130,7 @@ export default function About() {
                     { value: '3', label: 'Cities Covered', color: 'text-red-600', bg: 'bg-red-50' },
                     { value: '15+', label: 'Billboard Sites', color: 'text-blue-600', bg: 'bg-blue-50' },
                     { value: '500+', label: 'Happy Clients', color: 'text-green-600', bg: 'bg-green-50' },
-                    { value: '10+', label: 'Years Experience', color: 'text-yellow-600', bg: 'bg-yellow-50' },
+                    { value: '50+', label: 'Years Experience', color: 'text-yellow-600', bg: 'bg-yellow-50' },
                   ].map((stat, i) => (
                     <div key={i} className={`text-center p-5 ${stat.bg} rounded-2xl hover-lift`}>
                       <div className={`text-4xl sm:text-5xl font-black ${stat.color}`}>{stat.value}</div>
