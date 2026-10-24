@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Site, City, Inquiry } from '@/lib/supabase';
+import { Site, City, Area, Inquiry } from '@/lib/supabase';
 import {
   MapPin, LogOut, LayoutDashboard, Map, MessageSquare, Plus, Edit2, Trash2,
   CheckCircle, XCircle, Phone as PhoneIcon, Mail, Clock, ChevronDown, X, Loader2, Home
@@ -11,12 +11,13 @@ import {
 import toast, { Toaster } from 'react-hot-toast';
 import Link from 'next/link';
 
-type Tab = 'dashboard' | 'sites' | 'inquiries';
+type Tab = 'dashboard' | 'sites' | 'areas' | 'inquiries';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [sites, setSites] = useState<Site[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSiteForm, setShowSiteForm] = useState(false);
@@ -38,16 +39,19 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [sitesRes, citiesRes, inquiriesRes] = await Promise.all([
+    const [sitesRes, citiesRes, areasRes, inquiriesRes] = await Promise.all([
       fetch('/api/admin/sites'),
       fetch('/api/admin/cities'),
+      fetch('/api/admin/areas'),
       fetch('/api/admin/inquiries'),
     ]);
     const sitesData = await sitesRes.json();
     const citiesData = await citiesRes.json();
+    const areasData = await areasRes.json();
     const inquiriesData = await inquiriesRes.json();
     if (Array.isArray(sitesData)) setSites(sitesData);
     if (Array.isArray(citiesData)) setCities(citiesData);
+    if (Array.isArray(areasData)) setAreas(areasData);
     if (Array.isArray(inquiriesData)) setInquiries(inquiriesData);
     setLoading(false);
   };
@@ -154,6 +158,7 @@ export default function AdminDashboard() {
           {[
             { id: 'dashboard' as Tab, label: 'Dashboard', icon: LayoutDashboard },
             { id: 'sites' as Tab, label: 'Sites', icon: Map, badge: sites.length },
+            { id: 'areas' as Tab, label: 'Areas', icon: MapPin, badge: areas.length },
             { id: 'inquiries' as Tab, label: 'Inquiries', icon: MessageSquare, badge: newInquiries },
           ].map((tab) => (
             <button
@@ -348,6 +353,11 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Areas Tab */}
+        {activeTab === 'areas' && (
+          <AreaManager areas={areas} cities={cities} onRefresh={fetchData} />
         )}
 
         {/* Inquiries Tab */}
@@ -699,6 +709,107 @@ function SiteFormModal({
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+// ─── Area Manager ─────────────────────────────────────────────────────────────
+function AreaManager({ areas, cities, onRefresh }: { areas: Area[]; cities: City[]; onRefresh: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Area | null>(null);
+  const [form, setForm] = useState({ city_id: '', name: '', lat: '', lng: '' });
+  const [saving, setSaving] = useState(false);
+
+  const openNew = () => { setEditing(null); setForm({ city_id: cities[0]?.id || '', name: '', lat: '', lng: '' }); setShowForm(true); };
+  const openEdit = (a: Area) => { setEditing(a); setForm({ city_id: a.city_id, name: a.name, lat: String(a.lat), lng: String(a.lng) }); setShowForm(true); };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault(); setSaving(true);
+    const body = { ...form, lat: parseFloat(form.lat), lng: parseFloat(form.lng) };
+    const res = await fetch('/api/admin/areas', { method: editing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editing ? { id: editing.id, ...body } : body) });
+    setSaving(false);
+    if (res.ok) { toast.success(editing ? 'Area updated' : 'Area created'); setShowForm(false); onRefresh(); }
+    else toast.error('Failed to save area');
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this area?')) return;
+    const res = await fetch(`/api/admin/areas?id=${id}`, { method: 'DELETE' });
+    if (res.ok) { toast.success('Area deleted'); onRefresh(); } else toast.error('Failed to delete');
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900">Areas ({areas.length})</h2>
+        <button onClick={openNew} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+          <Plus className="w-4 h-4" /> New Area
+        </button>
+      </div>
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 border-b border-gray-100">
+            <tr>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600">Area</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600">City</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600">Lat / Lng</th>
+              <th className="text-right px-4 py-3 font-semibold text-gray-600">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {areas.length === 0 && <tr><td colSpan={4} className="text-center py-8 text-gray-400">No areas yet.</td></tr>}
+            {areas.map((area) => (
+              <tr key={area.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium text-gray-900">{area.name}</td>
+                <td className="px-4 py-3 text-gray-500">{cities.find(c => c.id === area.city_id)?.name || '—'}</td>
+                <td className="px-4 py-3 text-gray-400 text-xs">{area.lat.toFixed(4)}, {area.lng.toFixed(4)}</td>
+                <td className="px-4 py-3 text-right">
+                  <div className="inline-flex gap-2">
+                    <button onClick={() => openEdit(area)} className="p-1.5 hover:bg-gray-100 rounded-lg"><Edit2 className="w-4 h-4 text-gray-500" /></button>
+                    <button onClick={() => handleDelete(area.id)} className="p-1.5 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {showForm && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-gray-900">{editing ? 'Edit Area' : 'New Area'}</h3>
+              <button onClick={() => setShowForm(false)} className="p-1.5 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5 text-gray-400" /></button>
+            </div>
+            <form onSubmit={handleSave} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <select value={form.city_id} onChange={e => setForm({ ...form, city_id: e.target.value })} className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                  {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Area Name</label>
+                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Fairlands, Junction" required />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                  <input value={form.lat} onChange={e => setForm({ ...form, lat: e.target.value })} className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="11.6643" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                  <input value={form.lng} onChange={e => setForm({ ...form, lng: e.target.value })} className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="78.1460" required />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Cancel</button>
+                <button type="submit" disabled={saving} className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold disabled:opacity-50 transition-colors">{saving ? 'Saving...' : editing ? 'Update' : 'Create'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

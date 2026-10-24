@@ -20,6 +20,18 @@ CREATE TABLE IF NOT EXISTS cities (
 );
 
 -- ============================================
+-- AREAS TABLE (between cities and sites)
+-- ============================================
+CREATE TABLE IF NOT EXISTS areas (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  city_id UUID REFERENCES cities(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  lat DOUBLE PRECISION NOT NULL,
+  lng DOUBLE PRECISION NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
 -- SITES TABLE
 -- ============================================
 CREATE TYPE site_status AS ENUM ('available', 'booked', 'maintenance');
@@ -28,6 +40,7 @@ CREATE TYPE site_type AS ENUM ('hoarding', 'unipole', 'bus_shelter', 'gantry', '
 CREATE TABLE IF NOT EXISTS sites (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   city_id UUID REFERENCES cities(id) ON DELETE CASCADE NOT NULL,
+  area_id UUID REFERENCES areas(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
   address TEXT,
   lat DOUBLE PRECISION NOT NULL,
@@ -70,11 +83,15 @@ CREATE TABLE IF NOT EXISTS inquiries (
 
 -- Enable RLS on all tables
 ALTER TABLE cities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE areas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sites ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
 
 -- Public read access for cities and available sites
 CREATE POLICY "Public can read cities" ON cities
+  FOR SELECT USING (true);
+
+CREATE POLICY "Public can read areas" ON areas
   FOR SELECT USING (true);
 
 CREATE POLICY "Public can read sites" ON sites
@@ -86,6 +103,9 @@ CREATE POLICY "Public can create inquiries" ON inquiries
 
 -- Service role (admin) has full access
 CREATE POLICY "Admin full access cities" ON cities
+  FOR ALL USING (auth.role() = 'service_role');
+
+CREATE POLICY "Admin full access areas" ON areas
   FOR ALL USING (auth.role() = 'service_role');
 
 CREATE POLICY "Admin full access sites" ON sites

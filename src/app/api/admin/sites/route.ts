@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const { data, error } = await supabaseAdmin
       .from('sites')
-      .select('*, cities(name)')
+      .select('*, cities(name), areas(name)')
       .order('created_at', { ascending: false });
 
     if (error) {

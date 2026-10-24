@@ -10,6 +10,7 @@ interface MapViewProps {
   zoom: number;
   sites: Site[];
   onSiteClick: (site: Site) => void;
+  readOnly?: boolean;
 }
 
 function getMarkerIcon(status: string) {
@@ -47,7 +48,7 @@ function getMarkerIcon(status: string) {
   });
 }
 
-export default function MapView({ center, zoom, sites, onSiteClick }: MapViewProps) {
+export default function MapView({ center, zoom, sites, onSiteClick, readOnly = false }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
@@ -124,17 +125,19 @@ export default function MapView({ center, zoom, sites, onSiteClick }: MapViewPro
         </div>
       `, { closeButton: true, maxWidth: 280 });
 
-      marker.on('popupopen', () => {
-        setTimeout(() => {
-          const btn = document.getElementById(`site-detail-${site.id}`);
-          if (btn) {
-            btn.addEventListener('click', () => {
-              onSiteClick(site);
-              marker.closePopup();
-            });
-          }
-        }, 100);
-      });
+      if (!readOnly) {
+        marker.on('popupopen', () => {
+          setTimeout(() => {
+            const btn = document.getElementById(`site-detail-${site.id}`);
+            if (btn) {
+              btn.addEventListener('click', () => {
+                onSiteClick(site);
+                marker.closePopup();
+              });
+            }
+          }, 100);
+        });
+      }
     });
 
     return () => {

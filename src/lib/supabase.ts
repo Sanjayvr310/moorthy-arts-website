@@ -28,12 +28,23 @@ export type City = {
   created_at: string;
 };
 
+export type Area = {
+  id: string;
+  city_id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  created_at: string;
+  cities?: City;
+};
+
 export type SiteStatus = 'available' | 'booked' | 'maintenance';
 export type SiteType = 'hoarding' | 'unipole' | 'bus_shelter' | 'gantry' | 'wall_painting';
 
 export type Site = {
   id: string;
   city_id: string;
+  area_id: string | null;
   name: string;
   address: string;
   lat: number;
@@ -53,6 +64,7 @@ export type Site = {
   created_at: string;
   updated_at: string;
   cities?: City;
+  areas?: Area;
 };
 
 export type InquiryStatus = 'new' | 'contacted' | 'confirmed' | 'rejected';
