@@ -495,6 +495,7 @@ function SiteFormModal({
     traffic_info: site?.traffic_info || '',
     illumination: site?.illumination || false,
     booked_by: site?.booked_by || '',
+    booked_until: site?.booked_until || '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -685,14 +686,26 @@ function SiteFormModal({
             <label htmlFor="illumination" className="text-sm text-gray-700">Illuminated (Lit billboard)</label>
           </div>
           {form.status === 'booked' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Booked By</label>
-              <input
-                value={form.booked_by}
-                onChange={(e) => setForm({ ...form, booked_by: e.target.value })}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Client name"
-              />
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Booked By</label>
+                <input
+                  value={form.booked_by}
+                  onChange={(e) => setForm({ ...form, booked_by: e.target.value })}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                  placeholder="Client name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Booked Until</label>
+                <input
+                  type="date"
+                  value={form.booked_until}
+                  onChange={(e) => setForm({ ...form, booked_until: e.target.value })}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
             </div>
           )}
           <div className="flex gap-3 pt-2">

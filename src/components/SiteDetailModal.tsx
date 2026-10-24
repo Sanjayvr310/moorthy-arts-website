@@ -226,7 +226,9 @@ export default function SiteDetailModal({ site, onClose }: SiteDetailModalProps)
           ) : (
             <div className="bg-gray-50 rounded-xl p-4 text-center">
               <p className="text-gray-500 text-sm mb-3">
-                This site is currently {site.status}. Contact us for future availability.
+                This site is currently booked
+                {site.booked_until ? ` until ${new Date(site.booked_until).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}.
+                Contact us to reserve it for after this date.
               </p>
               <a
                 href={whatsappLink}
